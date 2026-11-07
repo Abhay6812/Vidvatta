@@ -1,176 +1,202 @@
 # VIDVATTA
 
-VIDVATTA is an independent, Maharashtra-focused scholarship information and
-student-planning website. It brings scheme listings, category-based browsing,
-limited eligibility screening, and personal application-preparation tools
-together in one responsive interface.
+**Knowledge. Opportunity. Empowerment.**
 
-The project is a static front-end prototype built with HTML, CSS, and vanilla
-JavaScript. It has no server-side application, database, authentication
-service, or connection that submits applications to MahaDBT.
+VIDVATTA is an independent scholarship-guidance and planning website for
+students in Maharashtra. It brings a curated selection of MahaDBT-referenced
+scheme listings, a limited eligibility screener, document checklists, and
+local planning tools together in one browser-based journey.
 
-## Why focus on Maharashtra?
+VIDVATTA is not a Government of Maharashtra or MahaDBT service. It does not
+connect to MahaDBT, submit applications, retrieve application status, or make
+official eligibility decisions. Students must verify current rules and apply
+through official government portals.
 
-Scholarship opportunities and application rules are often tied to a particular
-state, department, education level, community category, course, and admission
-route. VIDVATTA focuses on Maharashtra because the MahaDBT portal is the
-state's official scholarship directory and application destination, with
-school and college schemes spanning multiple state departments.
+## Original problem statement
 
-This state-first scope helps students start with information relevant to
-Maharashtra instead of presenting the site as a complete guide to scholarships
-across India. It also makes it practical to organize listings by study level
-and category, surface the official source for each listing, and explain what
-students should verify before applying. VIDVATTA is a guide to those sources,
-not a replacement for them.
+The hackathon problem statement is **“GRANTLY — Rethinking the Scholarship
+Experience.”** It describes four challenges: discovering educational
+assistance, understanding scholarship options, navigating application
+processes, and keeping important information organized. **VIDVATTA is the
+proposed solution** to those challenges; GRANTLY is not the product name.
 
-## Relationship to MahaDBT
+## Why Maharashtra?
 
-VIDVATTA uses the official MahaDBT 2.0 school and college student directories
-as references for its scheme catalogue and links students back to MahaDBT for
-official details and applications:
+Scholarship rules are often determined by state, department, education level,
+community category, course, and admission route. Maharashtra is VIDVATTA's
+initial audience and implementation scope. The MahaDBT scholarship ecosystem
+is the primary reference for the catalogue and official links, so students can
+start with information relevant to Maharashtra rather than an incomplete
+all-India directory.
 
-- [MahaDBT 2.0 portal](https://mahadbt2.maharashtra.gov.in/)
-- [College student schemes](https://mahadbt2.maharashtra.gov.in/college-student)
-- [School student schemes](https://mahadbt2.maharashtra.gov.in/school-student)
+MahaDBT is the authoritative source for current scheme details, application
+windows, documents, and decisions. VIDVATTA is independently developed and is
+not affiliated with, endorsed by, or operated by MahaDBT or the Government of
+Maharashtra.
 
-The catalogue contains 74 listings as represented in this project: 60 college
-and 14 school entries. Some English titles are reader-friendly translations;
-use the official portal for official wording. Listings and category tags are
-for discovery only and do not establish eligibility.
+## Problem-to-feature mapping
 
-VIDVATTA is independently developed and is **not affiliated with, endorsed by,
-or operated by the Government of Maharashtra or MahaDBT**. The official portal
-is authoritative. Scheme details, benefits, documents, application windows,
-and eligibility rules may change; verify them on MahaDBT before acting.
+| Original problem | VIDVATTA feature | What it does |
+| --- | --- | --- |
+| Discover educational financial assistance | Scholarship Discovery | Searches scheme names and departments; filters the selected directory by category and study level; links to official MahaDBT directories. |
+| Understand available options | Eligibility Intelligence and Scholarship Comparison | Screens two represented rule sets, separates matching, failed, and unverified checks, and compares directory facts without treating a match as an award prediction. |
+| Navigate application processes | Document Assistant, Student Roadmap, and official portal links | Tracks checklist marks locally, suggests a next step, and directs students to MahaDBT for official requirements and applications. |
+| Keep important information organized | Application Tracker and Calendar Reminders | Saves manually entered statuses and personal dates in the current browser; it does not fetch application status or send notifications. |
+
+The homepage section **“Your Scholarship Journey, Simplified”** links each
+stage to its working module. The Student Roadmap adds the profile-first path:
+profile, discovery, eligibility, documents, official portal, and manual
+tracking.
 
 ## Features
 
-### Find and explore schemes
+- **Scholarship Discovery:** Search and filter school and college listings by
+  category and study level. Each listing links to the relevant official
+  directory. The current curated directory contains 72 entries (58 college
+  and 14 school); one duplicate title and one unnamed placeholder were
+  excluded. It is not a complete or live catalogue.
+- **Eligibility Intelligence:** Screens only two rule sets represented in
+  `eligibility-rules.js`: ST vocational training fee reimbursement and SEBC
+  technical education tuition fee scholarship. Results show matching, failed,
+  and unverified conditions. A failed SSC branch is left unverified rather
+  than receiving an inferred benefit percentage. A potential match is not an
+  approval or award prediction. The reusable matcher explains category and
+  study-track scope; academic marks are not applied as a criterion because no
+  verified threshold is represented for these rules.
+- **Document Assistant:** Saves checklist marks for the two supported rule
+  sets, shows a readiness percentage and remaining items, and links to the
+  MahaDBT student directory. Readiness is self-reported, not document
+  verification. It never accepts files, document numbers, or document
+  metadata.
+- **Application Tracker:** A six-stage, locally saved Kanban pipeline:
+  Discovered, Eligibility Checked, Documents in Preparation, Ready to Apply,
+  Submitted, and Completed / Result Awaited. Students can drag cards or use
+  the stage selector, edit scheme/notes/deadlines, and remove entries.
+- **Calendar Reminders:** Adds and removes personal reminders, validates
+  titles and dates, and separates upcoming reminders from past entries.
+- **Scholarship Comparison:** Compares two different listings by name,
+  department, study level, category, and supported benefit details.
+- **Fee-component estimate:** Applies the represented SEBC tuition and
+  examination fee percentages to amounts entered by the student, only when
+  the relevant rule checks are fully matched. The estimate is not an approved
+  amount; ST training benefit amounts and other fee components are not
+  estimated.
+- **VIDVATTA AI guide:** Provides curated, rule-based answers in the browser.
+  English and Marathi guidance covers matching, documents, fee percentages,
+  official applications, and manual tracking. It is not a live AI model and
+  does not send questions or profile details to an AI service.
+- **Student Roadmap:** Shows completed steps and a next recommended action
+  based on profile, discovery, eligibility, checklist, portal, and tracker
+  activity.
+- **Local profile and privacy controls:** Stores the demo profile and work
+  data in this browser's `localStorage`; users can remove the saved profile.
+  Eligibility collects an income band rather than an exact amount. Profile
+  academic percentage is optional context and is not used to invent a
+  matching threshold.
 
-- Browse the student catalogue across school and college levels.
-- Search scheme names and departments, filter by study level, and browse
-  category tags such as SC, ST, OBC, VJNT, SBC, SEBC, EWS, minority, merit,
-  girls/women, and other scheme-specific groups.
-- View selected featured schemes and follow links to the official MahaDBT
-  directories for current details.
-- Compare two catalogue listings by their name, department, level, and
-  category tags.
+## Technology and architecture
 
-### Eligibility Intelligence
+VIDVATTA is a static front-end application built with HTML, CSS, and vanilla
+JavaScript. There is no backend, database, build process, or runtime service.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the architecture diagrams and
+runtime/data-flow details.
 
-- Create a local demo profile, enter study and household information, and
-  answer additional scheme-specific questions.
-- Screen against the two scheme rule sets currently represented in the
-  application: ST vocational training fee reimbursement and SEBC technical
-  education tuition fee scholarship.
-- See a possible match, a failed check, or criteria that still need review.
-- Show a published benefit percentage only when the represented official
-  criteria support showing it. A fee-coverage percentage is not the chance of
-  receiving an award or a promise of payment.
+| File | Responsibility |
+| --- | --- |
+| `index.html` | Semantic page structure, navigation, discovery filters, journey links, and workspace forms |
+| `style.css` | Visual system, responsive layouts, focus states, and reduced-motion behavior |
+| `scheme-catalog.js` | Scholarship listing data used by discovery, tracker, and comparison |
+| `eligibility-rules.js` | Reusable rule matching, eligibility classification, and supported fee estimates; exports functions for Node tests |
+| `local-profile-storage.js` | Local profile read/write/delete operations with testable error handling |
+| `script.js` | DOM rendering, filtering, validation, and interaction wiring |
+| `tests/` | Node rule/storage tests and Playwright browser tests |
+| `assets/` | VIDVATTA logo and favicon |
 
-The catalogue has 74 listings, but the eligibility screener does **not**
-evaluate all 74. Other scheme listings are for discovery and must be checked
-individually on MahaDBT. The screener is informational, not an official
-eligibility decision.
-
-### Personal student workspace
-
-- **Local profile:** Save a display name and optional education details in the
-  current browser.
-- **Document checklist:** Track preparation items for the two schemes
-  supported by the screener. This is a checklist only; the site does not accept
-  file uploads or document numbers.
-- **Application tracker:** Manually record a scheme, your own progress status,
-  and an optional follow-up date. It does not retrieve application status.
-- **Calendar reminders:** Add personal reminder dates. These are not official
-  deadlines and do not trigger notifications.
-- **My Roadmap:** View suggested preparation steps and mark progress through
-  the student journey.
-- **VIDVATTA AI guide:** Get curated, rule-based next-step guidance in the
-  browser. Despite the menu label, this prototype does not call an AI service.
-- **Settings and privacy information:** Review the local-only profile model
-  and delete the saved profile and eligibility answers.
-
-### Responsive interface
-
-- Sidebar navigation for the workspace, with a mobile menu for smaller
-  screens.
-- Responsive layouts intended for desktop, tablet, and phone widths.
-- Introductory information, FAQs, and repeated links to official sources.
-
-## Privacy and important limitations
-
-- The account is a **local demo profile**, not secure authentication. It has no
-  password, server account, or synchronization between browsers/devices.
-- Profile details, eligibility answers, checklist progress, tracker items, and
-  reminders are stored in this browser's `localStorage`. Browser storage is
-  readable by someone with access to the browser profile and is not encrypted
-  by VIDVATTA.
-- The site does not send profile data to a VIDVATTA server. Do not enter
-  Aadhaar numbers, OTPs, bank details, or other sensitive identifiers.
-- Do not upload documents; the prototype has no document-upload feature.
-- The site does not submit applications, retrieve live application status,
-  fetch current deadlines, or send notifications.
-- Only the two stated scheme rule sets are screened. Always confirm full
-  criteria, documents, benefit calculations, current availability, and dates
-  with the official portal or the relevant institute.
+User-provided text is rendered through text nodes and `textContent`, not
+interpolated as HTML. No passwords, Aadhaar numbers, OTPs, bank details, or
+document contents are requested or stored by the application. New income
+answers use bands rather than exact family income amounts.
 
 ## Run locally
 
-No package installation or build step is required. With Python installed, open
-PowerShell in the project folder and run:
+Install Node.js and Python, then open PowerShell in the project directory:
 
 ```powershell
+npm install
 python -m http.server 8000 --bind 127.0.0.1
 ```
 
-Then open [http://localhost:8000](http://localhost:8000/). Stop the server with
-`Ctrl+C`.
+Open [http://localhost:8000](http://localhost:8000/) in a browser. Stop the
+server with `Ctrl+C`.
 
-Alternatively, open `index.html` directly in a modern browser. Serving the
-folder over HTTP is recommended for consistent browser behavior.
+## Automated tests
 
-## Project files
-
-| File | Purpose |
-| --- | --- |
-| `index.html` | Page content, navigation, scheme sections, and workspace forms |
-| `style.css` | Visual design, responsive layout, and component states |
-| `script.js` | Catalogue rendering, filters, profile storage, screening, and workspace interactions |
-| `scheme-catalog.js` | The school and college scheme listing data |
-| `assets/vidvatta-logo.png` | VIDVATTA logo used in the workspace sidebar and as the browser favicon |
-| `README.md` | Project overview, features, setup, and limitations |
-| `LICENSE` | MIT License for the project software |
-
-## Development checks
-
-The project currently has no package manifest, build system, or automated test
-suite. To check JavaScript syntax with Node.js:
+Install the Playwright Chromium browser once:
 
 ```powershell
-node --check .\script.js
-node --check .\scheme-catalog.js
+npx playwright install chromium
 ```
 
-After changes, also verify the navigation and forms in a browser at desktop
-and mobile widths. Test profile-dependent features with temporary data and
-remove it afterward using **Settings** or the account dialog.
+Run the unit and browser tests:
 
-## Sources and attribution
+```powershell
+npm test
+```
 
-MahaDBT scheme information and links are referenced for educational discovery.
-The scheme catalogue includes names and categories drawn from the official
-MahaDBT school and college directories; some displayed English titles are
-reader-friendly translations. Verify official wording and rules on MahaDBT.
+The unit tests cover eligibility outcomes, unknown income, rule matching,
+supported fee estimates, and local storage error cases. Playwright covers
+initial loading, internal links, search and filters, eligibility validation,
+checklist persistence/readiness, tracker CRUD and stage changes, reminders,
+comparison, fee estimates, Marathi guidance, keyboard-operable mobile
+navigation, browser page errors, and horizontal overflow at 360, 390, 768,
+1024, and 1440 CSS pixels with both a fresh and populated dashboard.
 
-The interface loads Cormorant Garamond and DM Sans from Google Fonts when
-network access is available. The project software's MIT license does not
-relicense third-party names, trademarks, government content, or externally
-hosted fonts; those remain subject to their respective terms.
+## Deploy to Vercel
 
-## License
+This is a static site; no build or server function is required.
 
-The VIDVATTA project software is available under the [MIT License](./LICENSE).
-Third-party content and assets are not included in that grant; see
-[Sources and attribution](#sources-and-attribution).
+1. Import the repository into Vercel.
+2. Select the **Other** framework preset.
+3. Set the project root to the directory containing `index.html`.
+4. Leave the build and install commands empty; set the output directory to
+   `.` (the project root).
+5. Deploy and verify the site and assets in the Vercel preview.
+
+The Playwright dependency is only for local development and does not change
+the static runtime. Do not configure API keys or secrets for this project.
+
+## Current limitations
+
+- The scheme directory is curated and static. It is not a complete catalogue,
+  live feed, or guarantee that a scheme is currently open.
+- Only the two documented rule sets listed above are screened. Other
+  directory entries must be checked directly with MahaDBT.
+- The fee estimate supports only the represented SEBC tuition and examination
+  fee components. It cannot infer an approved amount, other fee support, or
+  the outcome of an application.
+- Academic marks are collected only as optional profile context and are not
+  used in matching because this implementation does not represent a verified
+  marks threshold for the supported rule sets.
+- Eligibility results are an informational checklist, not a government
+  decision, approval, or probability of receiving funds.
+- The local profile has no password, server account, encryption, or
+  cross-device synchronization. Browser profile users may be able to read its
+  `localStorage`.
+- Application statuses and reminder dates are entered by the student. The
+  site does not send notifications or fetch live MahaDBT status.
+- No scholarship application is submitted from VIDVATTA.
+- The rule-based guide is fixed content, not a live AI or government
+  integration.
+
+## Sources and license
+
+The catalogue and official links reference the [MahaDBT 2.0
+portal](https://mahadbt2.maharashtra.gov.in/), including its [college student
+directory](https://mahadbt2.maharashtra.gov.in/college-student) and [school
+student directory](https://mahadbt2.maharashtra.gov.in/school-student).
+Displayed English scheme names may be reader-friendly translations; consult
+MahaDBT for official wording and current requirements.
+
+The VIDVATTA project software is available under the [MIT
+License](./LICENSE). The license does not apply to third-party names,
+trademarks, government content, or externally hosted fonts.

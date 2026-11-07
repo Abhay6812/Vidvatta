@@ -4,12 +4,49 @@ const sidebarScrim = document.querySelector("#sidebar-scrim");
 const sidebarLinks = [...document.querySelectorAll(".sidebar-navigation a")];
 const pageTitle = document.querySelector("#page-title");
 
+function closeMobileNavigation(restoreFocus = false) {
+  menuToggle.setAttribute("aria-expanded", "false");
+  menuToggle.setAttribute("aria-label", "Open navigation");
+  sidebar.classList.remove("is-open");
+  sidebarScrim.hidden = true;
+  sidebar.inert = window.matchMedia("(max-width: 700px)").matches;
+  if (restoreFocus) menuToggle.focus();
+}
+
+function openMobileNavigation() {
+  menuToggle.setAttribute("aria-expanded", "true");
+  menuToggle.setAttribute("aria-label", "Close navigation");
+  sidebar.classList.add("is-open");
+  sidebar.inert = false;
+  sidebarScrim.hidden = false;
+  sidebarLinks[0]?.focus();
+}
+
+function updateNavigationForViewport() {
+  if (!window.matchMedia("(max-width: 700px)").matches) {
+    sidebar.inert = false;
+    sidebar.classList.remove("is-open");
+    sidebarScrim.hidden = true;
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Open navigation");
+    return;
+  }
+  if (menuToggle.getAttribute("aria-expanded") !== "true") sidebar.inert = true;
+}
+
 menuToggle.addEventListener("click", () => {
-  const isExpanded = menuToggle.getAttribute("aria-expanded") === "true";
-  menuToggle.setAttribute("aria-expanded", String(!isExpanded));
-  sidebar.classList.toggle("is-open", !isExpanded);
-  sidebarScrim.hidden = isExpanded;
+  if (menuToggle.getAttribute("aria-expanded") === "true") closeMobileNavigation();
+  else openMobileNavigation();
 });
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && menuToggle.getAttribute("aria-expanded") === "true") {
+    closeMobileNavigation(true);
+  }
+});
+
+window.addEventListener("resize", updateNavigationForViewport);
+updateNavigationForViewport();
 
 function activateSidebarLink(link) {
   sidebarLinks.forEach((sidebarLink) => sidebarLink.removeAttribute("aria-current"));
@@ -20,24 +57,24 @@ function activateSidebarLink(link) {
 sidebarLinks.forEach((link) => {
   link.addEventListener("click", () => {
     activateSidebarLink(link);
-    if (link.hash === "#scholarships" && localProfile) {
-      localProfile.discoverViewed = true;
-      persistWorkspaceProfile(roadmapError);
-      updateRoadmap();
-    }
     if (window.matchMedia("(max-width: 700px)").matches) {
-      menuToggle.setAttribute("aria-expanded", "false");
-      sidebar.classList.remove("is-open");
-      sidebarScrim.hidden = true;
+      closeMobileNavigation(true);
     }
   });
 });
 
-sidebarScrim.addEventListener("click", () => {
-  menuToggle.setAttribute("aria-expanded", "false");
-  sidebar.classList.remove("is-open");
-  sidebarScrim.hidden = true;
+function markDiscoveryViewed() {
+  if (!localProfile) return;
+  localProfile.discoverViewed = true;
+  persistWorkspaceProfile(roadmapError);
+  updateRoadmap();
+}
+
+document.querySelectorAll('a[href="#scholarships"]').forEach((link) => {
+  link.addEventListener("click", markDiscoveryViewed);
 });
+
+sidebarScrim.addEventListener("click", () => closeMobileNavigation(true));
 
 function updateSidebarFromHash() {
   const activeLink = sidebarLinks.find((link) => link.hash === window.location.hash);
@@ -203,15 +240,13 @@ function filterSchemes() {
   const searchTerm = document.querySelector("#scheme-search").value.trim().toLocaleLowerCase();
   const studyLevel = document.querySelector("#study-level").value;
   const community = document.querySelector("#community").value;
-  const incomeCap = document.querySelector("#income-cap").value;
   let visibleCount = 0;
 
   schemeCards.forEach((card) => {
     const matchesSearch = !searchTerm || `${card.dataset.search} ${card.innerText}`.toLocaleLowerCase().includes(searchTerm);
     const matchesLevel = studyLevel === "all" || card.dataset.level === studyLevel;
     const matchesCommunity = community === "all" || card.dataset.groups.split(" ").includes(community);
-    const matchesIncome = incomeCap === "all" || card.dataset.income === incomeCap;
-    const isVisible = matchesSearch && matchesLevel && matchesCommunity && matchesIncome;
+    const isVisible = matchesSearch && matchesLevel && matchesCommunity;
 
     card.hidden = !isVisible;
     if (isVisible) visibleCount += 1;
@@ -233,6 +268,10 @@ filterSchemes();
 renderSchemeDirectory();
 
 const localProfileKey = "vidvattaLocalProfile";
+const profileStorage = window.vidvattaProfileStorage;
+const verifiedEligibilityRules = window.vidvattaEligibility.rules;
+const assessRule = window.vidvattaEligibility.assess;
+const matchRules = window.vidvattaEligibility.match;
 const accountButton = document.querySelector("#account-button");
 const accountButtonLabel = document.querySelector("#account-button-label");
 const headerAvatar = document.querySelector("#header-avatar");
@@ -265,87 +304,24 @@ const calendarError = document.querySelector("#calendar-error");
 const documentChecklist = document.querySelector("#document-checklist");
 const documentScheme = document.querySelector("#document-scheme");
 const documentProgress = document.querySelector("#document-progress");
+const documentReadiness = document.querySelector("#document-readiness");
+const missingDocuments = document.querySelector("#missing-documents");
 const documentNote = document.querySelector("#documents-note");
 const documentsError = document.querySelector("#documents-error");
 const compareForm = document.querySelector("#compare-form");
 const compareFirst = document.querySelector("#compare-first");
 const compareSecond = document.querySelector("#compare-second");
 const compareResults = document.querySelector("#compare-results");
+const benefitForm = document.querySelector("#benefit-calculator");
+const benefitResult = document.querySelector("#benefit-result");
+const benefitError = document.querySelector("#benefit-error");
 const guideForm = document.querySelector("#guide-form");
 const guideAnswer = document.querySelector("#guide-answer");
 const roadmapItems = [...document.querySelectorAll(".roadmap-item")];
+const roadmapNextAction = document.querySelector("#roadmap-next-action");
 const roadmapError = document.querySelector("#roadmap-error");
 let localProfile = null;
 let profileStorageError = null;
-
-const verifiedEligibilityRules = [
-  {
-    id: "st-training",
-    name: "Reimbursement of Training Fees for Scheduled Tribe Students",
-    category: "st",
-    track: "vocational",
-    department: "Tribal Development Department",
-    url: "https://mahadbt2.maharashtra.gov.in/college-student",
-    check(profile) {
-      const add = (label, passed) => ({label, passed});
-      const yes = (value) => value === "yes" ? true : value === "no" ? false : null;
-      const categoryMatch = profile.category === "prefer-not" ? null : profile.category === "st";
-      return [
-        add("Belongs to the Scheduled Tribe (ST) category", categoryMatch),
-        add("Currently enrolled in a vocational training course", profile.track === "vocational" ? yes(profile.currentlyEnrolled) : false),
-        add("Maharashtra domicile", yes(profile.maharashtraDomicile)),
-        add("Annual family income is not more than ₹8 lakh", Number(profile.familyIncome) <= 800000),
-        add("Within the scheme's two-child limit", yes(profile.withinFirstTwo)),
-        add("SSC result is known", ["passed", "failed"].includes(profile.sscStatus) ? true : null),
-        add("Course is DGT / MSCVT approved", yes(profile.recognizedTraining)),
-        add("Admission was through the central online process, not management quota", yes(profile.centralTrainingAdmission)),
-        add("Required ST caste validity certificate is available", yes(profile.casteValidity)),
-        add("No prior government / private course or sponsored training benefit", yes(profile.previousTrainingBenefit) === null ? null : profile.previousTrainingBenefit === "no"),
-        add("Attendance and required exams meet course rules", yes(profile.trainingAttendance))
-      ];
-    },
-    benefit(profile) {
-      const income = Number(profile.familyIncome);
-      if (profile.sscStatus === "passed" && income <= 250000) {
-        return "MahaDBT lists the benefit as per the Government of India scholarship for this branch; it does not publish a fee-coverage percentage here.";
-      }
-      return "Tentative benefit published by MahaDBT: 100% reimbursement of the course fee for the listed SSC / income branch.";
-    }
-  },
-  {
-    id: "sebc-technical",
-    name: "Rajarshi Chhatrapati Shahu Maharaj Tuition Fee Scholarship — SEBC — Technical Education",
-    category: "sebc",
-    track: "technical",
-    department: "Directorate of Technical Education",
-    url: "https://mahadbt2.maharashtra.gov.in/college-student",
-    check(profile) {
-      const add = (label, passed) => ({label, passed});
-      const yes = (value) => value === "yes" ? true : value === "no" ? false : null;
-      const categoryMatch = profile.category === "prefer-not" ? null : profile.category === "sebc";
-      return [
-        add("Belongs to the SEBC category", categoryMatch),
-        add("Currently enrolled in a professional / technical diploma, degree, or postgraduate course", profile.track === "technical" ? yes(profile.currentlyEnrolled) : false),
-        add("Indian national", yes(profile.indianNational)),
-        add("Maharashtra domicile", yes(profile.maharashtraDomicile)),
-        add("Institute is not a deemed or private university", profile.instituteType === "eligible" ? true : profile.instituteType === "excluded" ? false : null),
-        add("Admission was through the Centralized Admission Process (CAP)", yes(profile.capAdmission)),
-        add("No other scholarship or stipend", yes(profile.otherScholarship) === null ? null : profile.otherScholarship === "no"),
-        add("Within the scheme's two-child limit", yes(profile.withinFirstTwo)),
-        add("Annual family income is not more than ₹8 lakh", Number(profile.familyIncome) <= 800000),
-        add("At least 50% attendance in the previous semester, or fresh first-semester admission", ["met", "first-semester"].includes(profile.technicalAttendance) ? true : profile.technicalAttendance === "below" ? false : null),
-        add("No study gap of two or more years during the course", yes(profile.studyGap) === null ? null : profile.studyGap === "no"),
-        add("Gender matches a benefit rate published in the scheme table", ["female", "male"].includes(profile.gender) ? true : null)
-      ];
-    },
-    benefit(profile) {
-      if (profile.gender === "female") {
-        return "Tentative MahaDBT benefit table: 100% of tuition fee and 100% of examination fee; 0% of other and development fees.";
-      }
-      return "Tentative MahaDBT benefit table: 50% of tuition fee and 50% of examination fee; 0% of other and development fees.";
-    }
-  }
-];
 
 function showProfileError(message) {
   accountError.textContent = message;
@@ -359,7 +335,7 @@ function showEligibilityError(message) {
 
 function saveLocalProfile() {
   try {
-    window.localStorage.setItem(localProfileKey, JSON.stringify(localProfile));
+    profileStorage.save(window.localStorage, localProfileKey, localProfile);
     profileStorageError = null;
     return true;
   } catch (error) {
@@ -384,13 +360,24 @@ function setConditionalCriteria() {
   });
 }
 
+function normalizeIncomeBand(value) {
+  const raw = String(value ?? "").trim();
+  if (["0-250000", "250001-800000", "800001+", "unknown"].includes(raw)) return raw;
+  if (!raw) return "";
+  const income = Number(raw);
+  if (!Number.isFinite(income) || income < 0) return "unknown";
+  if (income <= 250000) return "0-250000";
+  if (income <= 800000) return "250001-800000";
+  return "800001+";
+}
+
 function fillEligibilityForm() {
   const details = localProfile?.profileDetails || {};
   const savedAnswers = {
     ...(details.course ? {
       track: details.course === "school" ? "other" : details.course,
       category: details.category,
-      familyIncome: details.familyIncome,
+      familyIncome: normalizeIncomeBand(details.familyIncome),
       maharashtraDomicile: details.state === "Maharashtra" ? "yes" : "no"
     } : {}),
     ...(localProfile?.eligibility || {})
@@ -398,7 +385,9 @@ function fillEligibilityForm() {
 
   Object.entries(savedAnswers).forEach(([name, value]) => {
     const field = eligibilityForm.elements.namedItem(name);
-    if (field && typeof value === "string") field.value = value;
+    if (field && typeof value === "string") {
+      field.value = name === "familyIncome" ? normalizeIncomeBand(value) : value;
+    }
   });
   setConditionalCriteria();
 }
@@ -416,7 +405,7 @@ function fillProfileDetailsForm() {
     college: details.college || "",
     university: details.university || "",
     previousPercentage: details.previousPercentage || "",
-    familyIncome: details.familyIncome || eligibility.familyIncome || ""
+    familyIncome: normalizeIncomeBand(details.familyIncome || eligibility.familyIncome || "")
   };
 
   Object.entries(values).forEach(([name, value]) => {
@@ -463,6 +452,10 @@ function updateProfileUI() {
     renderTrackerItems();
     renderCalendarItems();
     updateRoadmap();
+    if (profileStorageError) {
+      profileFormError.textContent = profileStorageError;
+      profileFormError.hidden = false;
+    }
   } else {
     eligibilityResults.replaceChildren();
     profileFormError.hidden = true;
@@ -489,25 +482,27 @@ function appendMessage(parent, tagName, className, text) {
   return element;
 }
 
-function assessRule(rule, profile) {
-  const checks = rule.check(profile);
-  const failedChecks = checks.filter((check) => check.passed === false);
-  const unknownChecks = checks.filter((check) => check.passed !== true && check.passed !== false);
-  const status = failedChecks.length ? "not-match" : unknownChecks.length ? "review" : "possible";
-  return {checks, failedChecks, unknownChecks, status};
-}
-
-function renderRuleResult(rule, profile) {
-  const {failedChecks, unknownChecks, status} = assessRule(rule, profile);
+function renderRuleResult(rule, profile, assessment = assessRule(rule, profile)) {
+  const {failedChecks, passedChecks, unknownChecks, status} = assessment;
+  const categoryMatches = profile.category === rule.category;
+  const trackMatches = profile.track === rule.track;
   const card = document.createElement("article");
   card.className = "eligibility-result";
   card.dataset.status = status;
   appendMessage(card, "h3", "", rule.name);
+  appendMessage(
+    card,
+    "p",
+    "eligibility-explanation",
+    categoryMatches && trackMatches
+      ? "Why this scheme is shown: your selected category and study track match this rule set. Review each condition below; this is guidance, not an award prediction."
+      : "Why this scheme is shown: your selected category or study track relates to this rule set. Any mismatch or unknown condition is listed below; this is guidance, not an award prediction."
+  );
 
   const statusText = status === "possible"
     ? "Potential match — all checked criteria match; MahaDBT makes the final eligibility decision."
     : status === "review"
-      ? "Needs verification — one or more answers are unknown."
+      ? "Needs verification — one or more conditions are unverified."
       : "Does not match all published checks — this is not a decision on other schemes.";
   appendMessage(card, "p", "eligibility-status", statusText);
 
@@ -517,14 +512,21 @@ function renderRuleResult(rule, profile) {
     appendMessage(card, "p", "eligibility-explanation", "No benefit percentage is shown until the relevant published checks can be confirmed.");
   }
 
-  const unresolvedChecks = status === "not-match" ? failedChecks : unknownChecks;
-  if (unresolvedChecks.length) {
+  [
+    {title: "Conditions that match", checks: passedChecks, className: "check-group-passed", empty: "No confirmed conditions yet."},
+    {title: "Conditions that do not match", checks: failedChecks, className: "check-group-failed", empty: "No failed conditions."},
+    {title: "Conditions to verify", checks: unknownChecks, className: "check-group-unknown", empty: "No unverified conditions."}
+  ].forEach(({title, checks, className, empty}) => {
+    const group = document.createElement("section");
+    group.className = `eligibility-check-group ${className}`;
+    appendMessage(group, "h4", "", title);
     const list = document.createElement("ul");
-    unresolvedChecks.forEach((check) => {
-      appendMessage(list, "li", "", `${status === "not-match" ? "Does not meet / verify: " : "Please verify: "}${check.label}`);
+    (checks.length ? checks.map((check) => check.label) : [empty]).forEach((label) => {
+      appendMessage(list, "li", "", label);
     });
-    card.append(list);
-  }
+    group.append(list);
+    card.append(group);
+  });
 
   appendMessage(card, "p", "eligibility-explanation", "MahaDBT labels these as tentative benefits. Final amounts depend on the official rules, course, fee assessment, documents, and current scheme availability.");
   const officialLink = document.createElement("a");
@@ -537,9 +539,7 @@ function renderRuleResult(rule, profile) {
 }
 
 function renderEligibilityResults(profile) {
-  const results = verifiedEligibilityRules
-    .filter((rule) => profile.track === rule.track || profile.category === rule.category)
-    .map((rule) => renderRuleResult(rule, profile));
+  const results = matchRules(profile).map(({rule, ...assessment}) => renderRuleResult(rule, profile, assessment));
   eligibilityResults.replaceChildren();
 
   if (!results.length) {
@@ -557,18 +557,30 @@ function renderEligibilityResults(profile) {
     eligibilityResults,
     "p",
     "eligibility-empty",
-    "This first version checks only the two schemes shown above. A missing match does not mean you are ineligible for other MahaDBT schemes. See all 74 listings and verify the current rules on the official portal."
+    "This first version checks only the two schemes shown above. A missing match does not mean you are ineligible for other MahaDBT schemes. Browse the selected directory and verify the current rules on the official portal."
   );
 }
 
 try {
-  const storedProfile = window.localStorage.getItem(localProfileKey);
-  if (storedProfile) {
-    const parsedProfile = JSON.parse(storedProfile);
-    if (parsedProfile && typeof parsedProfile.name === "string") {
-      localProfile = parsedProfile;
-    } else {
-      throw new Error("The saved profile has an unexpected format. Delete it and create a new local profile.");
+  localProfile = profileStorage.load(window.localStorage, localProfileKey);
+  if (localProfile) {
+    let incomeBandChanged = false;
+    ["profileDetails", "eligibility"].forEach((sectionName) => {
+      const section = localProfile[sectionName];
+      if (!section || typeof section !== "object"
+        || !Object.prototype.hasOwnProperty.call(section, "familyIncome")) return;
+      const incomeBand = normalizeIncomeBand(section.familyIncome);
+      if (incomeBand === section.familyIncome) return;
+      section.familyIncome = incomeBand;
+      incomeBandChanged = true;
+    });
+    if (incomeBandChanged) {
+      try {
+        profileStorage.save(window.localStorage, localProfileKey, localProfile);
+      } catch (error) {
+        const reason = error instanceof Error ? ` ${error.message}` : "";
+        profileStorageError = `Older exact income data could not be converted to an income range in this browser.${reason}`;
+      }
     }
   }
 } catch (error) {
@@ -609,7 +621,7 @@ accountForm.addEventListener("submit", (event) => {
 deleteProfileButton.addEventListener("click", () => {
   if (!window.confirm("Delete your local VIDVATTA profile and all saved eligibility answers from this browser?")) return;
   try {
-    window.localStorage.removeItem(localProfileKey);
+    profileStorage.remove(window.localStorage, localProfileKey);
     profileStorageError = null;
     localProfile = null;
     accountForm.reset();
@@ -628,7 +640,7 @@ deleteProfileButton.addEventListener("click", () => {
 
 function persistWorkspaceProfile(errorElement) {
   try {
-    window.localStorage.setItem(localProfileKey, JSON.stringify(localProfile));
+    profileStorage.save(window.localStorage, localProfileKey, localProfile);
     profileStorageError = null;
     errorElement.hidden = true;
     return true;
@@ -644,6 +656,37 @@ function persistWorkspaceProfile(errorElement) {
 function createEntryId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
+
+const trackerStatuses = [
+  "Discovered",
+  "Eligibility Checked",
+  "Documents in Preparation",
+  "Ready to Apply",
+  "Submitted",
+  "Completed / Result Awaited"
+];
+const legacyTrackerStatuses = new Map([
+  ["Preparing documents", "Documents in Preparation"],
+  ["Ready to apply", "Ready to Apply"],
+  ["Waiting for institute", "Submitted"],
+  ["Follow up needed", "Submitted"]
+]);
+
+function todayAsDateInputValue() {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().slice(0, 10);
+}
+
+function isValidDateInput(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+const today = todayAsDateInputValue();
+calendarForm.elements.namedItem("date").min = today;
+trackerForm.elements.namedItem("reminderDate").min = today;
 
 function appendWorkspaceEmpty(parent, text) {
   appendMessage(parent, "p", "workspace-empty", text);
@@ -707,6 +750,10 @@ const schemeDocuments = {
     "Centralized Admission Process (CAP) document"
   ]
 };
+const schemeDocumentSources = {
+  "st-training": "https://mahadbt2.maharashtra.gov.in/college-student",
+  "sebc-technical": "https://mahadbt2.maharashtra.gov.in/college-student"
+};
 
 function updateDocumentSchemeFromProfile() {
   const category = localProfile?.eligibility?.category || localProfile?.profileDetails?.category;
@@ -730,7 +777,15 @@ function renderDocumentChecklist() {
   const labels = schemeId === "st-training"
     ? "Reimbursement of Training Fees for Scheduled Tribe Students"
     : "Rajarshi Chhatrapati Shahu Maharaj Tuition Fee Scholarship — SEBC — Technical Education";
-  documentNote.textContent = `${labels}. Checklist based on the official detail page; requirements can change. Marking an item stores only its checked state, never a document or document number.`;
+  documentNote.replaceChildren(
+    document.createTextNode(`${labels}. Requirements can change. Readiness is your own preparation status, not document verification. Only check marks are saved; no files, document numbers, or personal document metadata are collected. `)
+  );
+  const sourceLink = document.createElement("a");
+  sourceLink.href = schemeDocumentSources[schemeId];
+  sourceLink.target = "_blank";
+  sourceLink.rel = "noopener noreferrer";
+  sourceLink.textContent = "Verify current requirements on MahaDBT ↗";
+  documentNote.append(sourceLink);
   documentChecklist.replaceChildren();
 
   items.forEach((text, index) => {
@@ -746,8 +801,7 @@ function renderDocumentChecklist() {
         [schemeId]: {...current, [index]: checkbox.checked}
       };
       if (!persistWorkspaceProfile(documentsError)) return;
-      const checkedCount = Object.values(localProfile.documentChecks[schemeId]).filter(Boolean).length;
-      documentProgress.textContent = `${checkedCount} of ${items.length} checklist items marked ready`;
+      updateDocumentReadiness(items, localProfile.documentChecks[schemeId]);
       updateRoadmap();
     });
     label.append(checkbox, document.createTextNode(text));
@@ -755,14 +809,60 @@ function renderDocumentChecklist() {
   });
 
   const checkedCount = items.filter((_, index) => Boolean(saved[index])).length;
-  documentProgress.textContent = `${checkedCount} of ${items.length} checklist items marked ready`;
+  updateDocumentReadiness(items, saved);
+  updateRoadmap();
+}
+
+function updateDocumentReadiness(items, saved) {
+  const checkedCount = items.filter((_, index) => Boolean(saved[index])).length;
+  const percentage = Math.round((checkedCount / items.length) * 100);
+  documentReadiness.value = percentage;
+  documentReadiness.setAttribute("aria-label", `Document checklist readiness: ${percentage}%`);
+  documentProgress.textContent = `${checkedCount} of ${items.length} checklist items marked ready (${percentage}%). Not verified by MahaDBT.`;
+  missingDocuments.replaceChildren();
+  const missing = items.filter((_, index) => !saved[index]);
+  appendMessage(missingDocuments, "li", "", missing.length
+    ? `Still to prepare: ${missing.join("; ")}`
+    : "All listed checklist items are marked ready. Confirm the current official requirements before applying.");
 }
 
 documentScheme.addEventListener("change", renderDocumentChecklist);
 
 function getWorkspaceEntries(key, errorElement) {
-  const entries = localProfile[key] || [];
-  if (Array.isArray(entries)) return entries;
+  let entries = localProfile[key] || [];
+  if (key === "tracker" && Array.isArray(entries)) {
+    let migrated = false;
+    entries = entries.map((entry) => {
+      const newStatus = legacyTrackerStatuses.get(entry?.status);
+      if (!newStatus) return entry;
+      migrated = true;
+      const legacyNote = `Previous tracker status: ${entry.status}`;
+      return {
+        ...entry,
+        status: newStatus,
+        notes: [entry.notes, legacyNote].filter(Boolean).join(" · ")
+      };
+    });
+    if (migrated) {
+      localProfile.tracker = entries;
+      if (!persistWorkspaceProfile(errorElement)) return null;
+    }
+  }
+  const validEntries = Array.isArray(entries) && entries.every((entry) => (
+    entry
+    && typeof entry === "object"
+    && typeof entry.id === "string"
+    && (key === "tracker"
+      ? typeof entry.schemeIndex === "string"
+        && Boolean(schemeCatalog[Number(entry.schemeIndex)])
+        && trackerStatuses.includes(entry.status)
+        && typeof entry.reminderDate === "string"
+        && (!entry.reminderDate || isValidDateInput(entry.reminderDate))
+      : typeof entry.title === "string"
+        && Boolean(entry.title.trim())
+        && isValidDateInput(entry.date))
+  ));
+  if (validEntries) return entries;
   errorElement.textContent = "Saved workspace data has an unexpected format. Delete the local profile and create a new one to reset it.";
   errorElement.hidden = false;
   return null;
@@ -774,35 +874,114 @@ function renderTrackerItems() {
   const entries = getWorkspaceEntries("tracker", trackerError);
   if (!entries) return;
   trackerItems.replaceChildren();
+  trackerItems.classList.add("tracker-board");
+  trackerItems.setAttribute("aria-label", "Application pipeline. Drag cards to a stage or use each card's stage selector.");
+  trackerItems.setAttribute("role", "region");
+  trackerItems.tabIndex = 0;
+  renderTrackerStatistics(entries);
   if (!entries.length) {
     appendWorkspaceEmpty(trackerItems, "Your tracker is empty. Add a scheme and update its status yourself; this does not connect to MahaDBT.");
     return;
   }
 
-  entries.forEach((entry) => {
-    const scheme = schemeCatalog[Number(entry.schemeIndex)];
-    const card = document.createElement("article");
-    card.className = "workspace-item";
-    const detail = document.createElement("div");
-    appendMessage(detail, "h3", "", scheme?.name || "Scheme listing unavailable");
-    appendMessage(detail, "p", "", `Status: ${entry.status}${entry.reminderDate ? ` · Reminder: ${entry.reminderDate}` : ""}`);
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.dataset.removeTracker = entry.id;
-    remove.textContent = "Remove";
-    card.append(detail, remove);
-    trackerItems.append(card);
+  trackerStatuses.forEach((status) => {
+    const column = document.createElement("section");
+    column.className = "tracker-column";
+    column.dataset.trackerStage = status;
+    column.setAttribute("aria-label", `${status} stage`);
+    const stageEntries = entries.filter((entry) => entry.status === status);
+    appendMessage(column, "h3", "tracker-column-title", status);
+    const count = appendMessage(column, "span", "tracker-column-count", String(stageEntries.length));
+    count.setAttribute("aria-label", `${stageEntries.length} applications`);
+    const list = document.createElement("div");
+    list.className = "tracker-column-items";
+    if (!stageEntries.length) {
+      appendWorkspaceEmpty(list, "Drop an application here or change its stage.");
+    }
+    stageEntries.forEach((entry) => list.append(renderTrackerCard(entry)));
+    column.append(list);
+    trackerItems.append(column);
   });
+}
 
-  trackerItems.querySelectorAll("[data-remove-tracker]").forEach((button) => {
-    button.addEventListener("click", () => {
-      localProfile.tracker = entries.filter((entry) => entry.id !== button.dataset.removeTracker);
-      if (persistWorkspaceProfile(trackerError)) {
-        renderTrackerItems();
-        updateRoadmap();
-      }
-    });
+function renderTrackerStatistics(entries) {
+  const total = entries.length;
+  const progress = total
+    ? Math.round(entries.reduce((sum, entry) => sum + trackerStatuses.indexOf(entry.status) + 1, 0) / (total * trackerStatuses.length) * 100)
+    : 0;
+  const status = document.createElement("p");
+  status.textContent = `${total} tracked ${total === 1 ? "application" : "applications"} · average journey progress ${progress}% · manually maintained`;
+  const progressBar = document.createElement("progress");
+  progressBar.max = 100;
+  progressBar.value = progress;
+  progressBar.setAttribute("aria-label", `Average application journey progress: ${progress}%`);
+  document.querySelector("#tracker-statistics").replaceChildren(status, progressBar);
+}
+
+function renderTrackerCard(entry) {
+  const scheme = schemeCatalog[Number(entry.schemeIndex)];
+  const card = document.createElement("article");
+  card.className = "workspace-item tracker-card";
+  card.draggable = true;
+  card.dataset.trackerEntry = entry.id;
+  const detail = document.createElement("div");
+  appendMessage(detail, "h4", "", scheme?.name || "Scheme listing unavailable");
+  appendMessage(detail, "p", "tracker-card-meta", `${scheme?.department || "Department unavailable"}${entry.reminderDate ? ` · Deadline / reminder: ${entry.reminderDate}` : ""}`);
+  if (entry.notes) appendMessage(detail, "p", "tracker-card-notes", `Note: ${entry.notes}`);
+
+  const controls = document.createElement("div");
+  controls.className = "workspace-item-controls tracker-card-controls";
+  const schemeLabel = document.createElement("label");
+  schemeLabel.textContent = "Scheme";
+  const schemeSelect = document.createElement("select");
+  schemeSelect.dataset.trackerScheme = "";
+  schemeSelect.setAttribute("aria-label", `Scheme for ${scheme?.name || "tracker entry"}`);
+  schemeCatalog.forEach((item, index) => {
+    schemeSelect.add(new Option(`${item.name} — ${item.department}`, String(index)));
   });
+  schemeSelect.value = entry.schemeIndex;
+  schemeLabel.append(schemeSelect);
+
+  const statusLabel = document.createElement("label");
+  statusLabel.textContent = "Pipeline stage";
+  const statusSelect = document.createElement("select");
+  statusSelect.dataset.trackerStatus = "";
+  statusSelect.setAttribute("aria-label", `Pipeline stage for ${scheme?.name || "tracker entry"}`);
+  trackerStatuses.forEach((status) => statusSelect.add(new Option(status, status)));
+  statusSelect.value = entry.status;
+  statusLabel.append(statusSelect);
+
+  const noteLabel = document.createElement("label");
+  noteLabel.textContent = "Notes";
+  const noteInput = document.createElement("input");
+  noteInput.type = "text";
+  noteInput.maxLength = 300;
+  noteInput.value = entry.notes || "";
+  noteInput.dataset.trackerNotes = "";
+  noteInput.setAttribute("aria-label", `Notes for ${scheme?.name || "tracker entry"}`);
+  noteLabel.append(noteInput);
+
+  const reminderLabel = document.createElement("label");
+  reminderLabel.textContent = "Deadline / reminder";
+  const reminderInput = document.createElement("input");
+  reminderInput.type = "date";
+  reminderInput.min = today;
+  reminderInput.value = isValidDateInput(entry.reminderDate || "") ? entry.reminderDate : "";
+  reminderInput.dataset.trackerDate = "";
+  reminderInput.setAttribute("aria-label", `Deadline or reminder for ${scheme?.name || "tracker entry"}`);
+  reminderLabel.append(reminderInput);
+
+  const save = document.createElement("button");
+  save.type = "button";
+  save.dataset.saveTracker = entry.id;
+  save.textContent = "Save changes";
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.dataset.removeTracker = entry.id;
+  remove.textContent = "Remove";
+  controls.append(schemeLabel, statusLabel, noteLabel, reminderLabel, save, remove);
+  card.append(detail, controls);
+  return card;
 }
 
 function renderCalendarItems() {
@@ -816,27 +995,149 @@ function renderCalendarItems() {
     return;
   }
 
-  [...entries].sort((a, b) => a.date.localeCompare(b.date)).forEach((entry) => {
-    const card = document.createElement("article");
-    card.className = "workspace-item";
-    const detail = document.createElement("div");
-    appendMessage(detail, "h3", "", entry.title);
-    appendMessage(detail, "p", "", `Personal reminder · ${entry.date}`);
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.dataset.removeReminder = entry.id;
-    remove.textContent = "Remove";
-    card.append(detail, remove);
-    calendarItems.append(card);
-  });
+  const upcoming = entries
+    .filter((entry) => isValidDateInput(entry.date) && entry.date >= today)
+    .sort((left, right) => left.date.localeCompare(right.date));
+  const past = entries
+    .filter((entry) => isValidDateInput(entry.date) && entry.date < today)
+    .sort((left, right) => right.date.localeCompare(left.date));
 
-  calendarItems.querySelectorAll("[data-remove-reminder]").forEach((button) => {
-    button.addEventListener("click", () => {
-      localProfile.reminders = entries.filter((entry) => entry.id !== button.dataset.removeReminder);
-      if (persistWorkspaceProfile(calendarError)) renderCalendarItems();
+  function appendReminderGroup(title, reminders, state) {
+    const group = document.createElement("section");
+    group.className = "workspace-reminder-group";
+    appendMessage(group, "h3", "", title);
+    if (!reminders.length) {
+      appendWorkspaceEmpty(group, state === "upcoming" ? "No upcoming reminders." : "No past reminders.");
+    }
+
+    reminders.forEach((entry) => {
+      const card = document.createElement("article");
+      card.className = "workspace-item";
+      const detail = document.createElement("div");
+      appendMessage(detail, "h4", "", entry.title);
+      const displayDate = new Date(`${entry.date}T00:00:00`).toLocaleDateString();
+      appendMessage(detail, "p", "", `${state === "upcoming" ? "Upcoming" : "Past"} personal reminder · ${displayDate}`);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.dataset.removeReminder = entry.id;
+      remove.textContent = "Remove";
+      card.append(detail, remove);
+      group.append(card);
     });
-  });
+    calendarItems.append(group);
+  }
+
+  appendReminderGroup("Upcoming reminders", upcoming, "upcoming");
+  if (past.length) appendReminderGroup("Past reminders", past, "past");
 }
+
+function scrollTrackerEntryIntoView(entryId) {
+  const card = [...trackerItems.querySelectorAll("[data-tracker-entry]")]
+    .find((item) => item.dataset.trackerEntry === entryId);
+  if (!card) return;
+  const boardBounds = trackerItems.getBoundingClientRect();
+  const cardBounds = card.getBoundingClientRect();
+  const left = cardBounds.left - boardBounds.left + trackerItems.scrollLeft;
+  const right = left + cardBounds.width;
+  if (right > trackerItems.scrollLeft + trackerItems.clientWidth) {
+    trackerItems.scrollLeft = right - trackerItems.clientWidth;
+  } else if (left < trackerItems.scrollLeft) {
+    trackerItems.scrollLeft = left;
+  }
+}
+
+trackerItems.addEventListener("dragstart", (event) => {
+  const card = event.target.closest("[data-tracker-entry]");
+  if (!card || !event.dataTransfer) return;
+  event.dataTransfer.setData("text/plain", card.dataset.trackerEntry);
+  event.dataTransfer.effectAllowed = "move";
+});
+
+trackerItems.addEventListener("dragover", (event) => {
+  if (event.target.closest("[data-tracker-stage]")) event.preventDefault();
+});
+
+trackerItems.addEventListener("drop", (event) => {
+  const column = event.target.closest("[data-tracker-stage]");
+  const entryId = event.dataTransfer?.getData("text/plain");
+  if (!column || !entryId || !localProfile) return;
+  event.preventDefault();
+  const entries = getWorkspaceEntries("tracker", trackerError);
+  if (!entries) return;
+  if (!entries.some((entry) => entry.id === entryId)) return;
+  if (!trackerStatuses.includes(column.dataset.trackerStage)) return;
+  localProfile.tracker = entries.map((entry) => entry.id === entryId
+    ? {...entry, status: column.dataset.trackerStage}
+    : entry);
+  if (!persistWorkspaceProfile(trackerError)) {
+    localProfile.tracker = entries;
+    return;
+  }
+  renderTrackerItems();
+  scrollTrackerEntryIntoView(entryId);
+  updateRoadmap();
+});
+
+trackerItems.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-save-tracker], button[data-remove-tracker]");
+  if (!button || !localProfile) return;
+  trackerError.hidden = true;
+  const entries = getWorkspaceEntries("tracker", trackerError);
+  if (!entries) return;
+  const entry = entries.find((item) => item.id === button.dataset.saveTracker || item.id === button.dataset.removeTracker);
+  if (!entry) {
+    trackerError.textContent = "This tracker entry is no longer available. Refresh the page and try again.";
+    trackerError.hidden = false;
+    return;
+  }
+
+  let stageChanged = false;
+  if (button.hasAttribute("data-remove-tracker")) {
+    localProfile.tracker = entries.filter((item) => item.id !== entry.id);
+  } else {
+    const card = button.closest(".workspace-item");
+    const schemeIndex = card.querySelector("[data-tracker-scheme]").value;
+    const status = card.querySelector("[data-tracker-status]").value;
+    const reminderDate = card.querySelector("[data-tracker-date]").value;
+    const notes = card.querySelector("[data-tracker-notes]").value.trim();
+    stageChanged = status !== entry.status;
+    if (!schemeCatalog[Number(schemeIndex)] || !trackerStatuses.includes(status)) {
+      trackerError.textContent = "Choose a listed scheme and a valid tracker status.";
+      trackerError.hidden = false;
+      return;
+    }
+    if (reminderDate && (!isValidDateInput(reminderDate) || reminderDate < today)) {
+      trackerError.textContent = "Choose a valid reminder date that is today or later.";
+      trackerError.hidden = false;
+      return;
+    }
+    localProfile.tracker = entries.map((item) => item.id === entry.id
+      ? {...item, schemeIndex, status, reminderDate, notes}
+      : item);
+  }
+
+  if (!persistWorkspaceProfile(trackerError)) {
+    localProfile.tracker = entries;
+    return;
+  }
+  renderTrackerItems();
+  if (stageChanged) scrollTrackerEntryIntoView(entry.id);
+  updateRoadmap();
+});
+
+calendarItems.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-remove-reminder]");
+  if (!button || !localProfile) return;
+  calendarError.hidden = true;
+  const entries = getWorkspaceEntries("reminders", calendarError);
+  if (!entries) return;
+  localProfile.reminders = entries.filter((entry) => entry.id !== button.dataset.removeReminder);
+  if (!persistWorkspaceProfile(calendarError)) {
+    localProfile.reminders = entries;
+    return;
+  }
+  renderCalendarItems();
+});
 
 trackerForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -848,10 +1149,24 @@ trackerForm.addEventListener("submit", (event) => {
   }
 
   const entry = Object.fromEntries(new FormData(trackerForm).entries());
+  entry.reminderDate = entry.reminderDate.trim();
+  if (!schemeCatalog[Number(entry.schemeIndex)] || !trackerStatuses.includes(entry.status)) {
+    trackerError.textContent = "Choose a listed scheme and a valid tracker status.";
+    trackerError.hidden = false;
+    return;
+  }
+  if (entry.reminderDate && (!isValidDateInput(entry.reminderDate) || entry.reminderDate < today)) {
+    trackerError.textContent = "Choose a valid reminder date that is today or later.";
+    trackerError.hidden = false;
+    return;
+  }
   const entries = getWorkspaceEntries("tracker", trackerError);
   if (!entries) return;
   localProfile.tracker = [...entries, {...entry, id: createEntryId()}];
-  if (!persistWorkspaceProfile(trackerError)) return;
+  if (!persistWorkspaceProfile(trackerError)) {
+    localProfile.tracker = entries;
+    return;
+  }
   trackerForm.reset();
   renderTrackerItems();
   updateRoadmap();
@@ -868,10 +1183,23 @@ calendarForm.addEventListener("submit", (event) => {
 
   const entry = Object.fromEntries(new FormData(calendarForm).entries());
   entry.title = entry.title.trim();
+  if (!entry.title) {
+    calendarError.textContent = "Enter a reminder title.";
+    calendarError.hidden = false;
+    return;
+  }
+  if (!isValidDateInput(entry.date) || entry.date < today) {
+    calendarError.textContent = "Choose a valid date that is today or later.";
+    calendarError.hidden = false;
+    return;
+  }
   const entries = getWorkspaceEntries("reminders", calendarError);
   if (!entries) return;
   localProfile.reminders = [...entries, {...entry, id: createEntryId()}];
-  if (!persistWorkspaceProfile(calendarError)) return;
+  if (!persistWorkspaceProfile(calendarError)) {
+    localProfile.reminders = entries;
+    return;
+  }
   calendarForm.reset();
   renderCalendarItems();
 });
@@ -942,6 +1270,56 @@ compareForm.addEventListener("submit", (event) => {
   compareResults.append(renderCompareCard(schemeCatalog[firstIndex]), renderCompareCard(schemeCatalog[secondIndex]));
 });
 
+function formatRupees(amount) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2
+  }).format(amount);
+}
+
+benefitForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  benefitError.hidden = true;
+  const values = Object.fromEntries(new FormData(benefitForm).entries());
+  if (!localProfile?.eligibility) {
+    benefitError.textContent = "Complete and save the eligibility questions before estimating a supported fee component.";
+    benefitError.hidden = false;
+    return;
+  }
+  const rule = verifiedEligibilityRules.find((item) => item.id === values.scheme);
+  if (!rule) {
+    benefitError.textContent = "Choose one of the represented rule sets.";
+    benefitError.hidden = false;
+    return;
+  }
+  if (!rule.feeRates(localProfile.eligibility)) {
+    benefitError.textContent = "A published tuition and examination fee percentage is not represented for this scheme branch. Confirm the current benefit on MahaDBT.";
+    benefitError.hidden = false;
+    return;
+  }
+  const estimate = window.vidvattaEligibility.estimateFeeSupport(
+    rule,
+    localProfile.eligibility,
+    values.tuitionFee,
+    values.examFee
+  );
+  if (!estimate) {
+    benefitError.textContent = "The selected rule set has failed or unverified eligibility checks, or an entered fee amount is invalid. No estimate is shown.";
+    benefitError.hidden = false;
+    return;
+  }
+  benefitResult.replaceChildren(
+    document.createTextNode(`Indicative only: tuition component ${estimate.rates.tuition}% = ${formatRupees(estimate.tuitionEstimate)}; examination component ${estimate.rates.examination}% = ${formatRupees(estimate.examinationEstimate)}; combined estimate ${formatRupees(estimate.totalEstimate)}. Other and development fees are not included. Final benefits, payable fees, and approvals are determined through the official process. `)
+  );
+  const officialLink = document.createElement("a");
+  officialLink.href = rule.url;
+  officialLink.target = "_blank";
+  officialLink.rel = "noopener noreferrer";
+  officialLink.textContent = "Verify the current scheme on MahaDBT ↗";
+  benefitResult.append(officialLink);
+});
+
 function setGuideAnswer(message, linkText, href) {
   guideAnswer.replaceChildren(document.createTextNode(message));
   if (!href) return;
@@ -956,27 +1334,69 @@ function setGuideAnswer(message, linkText, href) {
   guideAnswer.append(link);
 }
 
+const guideCopy = {
+  en: {
+    matches: "VIDVATTA screens only two selected MahaDBT rule sets. Your category, course, income, and answers are compared with the represented checks; missing details stay unverified. A possible match is not an approval.",
+    documents: "The checklist is limited to the two represented schemes. Marking items records preparation check marks only; no files, document numbers, or personal document metadata are stored. Confirm the current list on MahaDBT.",
+    percentage: "A benefit percentage applies to a fee component in a published tentative benefit table. It is not a probability of receiving a scholarship. The estimate uses only tuition and examination amounts you enter and is not an approved amount.",
+    official: "VIDVATTA is independent guidance. Check current scheme rules and submit applications only through Maharashtra's official MahaDBT portal.",
+    status: "Move each manually tracked scheme through the six local stages. Add a personal note or deadline and save it on this device. VIDVATTA does not fetch application status or send notifications."
+  },
+  mr: {
+    matches: "VIDVATTA येथे निवडक MahaDBT नियमसंचांपैकी फक्त दोन तपासले जातात. तुमची प्रवर्ग, अभ्यासक्रम, उत्पन्न आणि उत्तरे उपलब्ध अटींशी तुलना केली जातात; अपूर्ण माहिती 'पडताळणी आवश्यक' राहते. संभाव्य जुळणी म्हणजे मंजुरी नाही.",
+    documents: "ही यादी फक्त येथे दर्शविलेल्या दोन योजनांसाठी आहे. खूण केल्याने तयारीची स्थितीच जतन होते; फाइल, कागदपत्र क्रमांक किंवा वैयक्तिक कागदपत्र माहिती साठवली जात नाही. MahaDBT वर सध्याची यादी तपासा.",
+    percentage: "लाभाची टक्केवारी प्रकाशित तात्पुरत्या लाभ तक्त्यातील शुल्काच्या घटकावर लागू होते. ती शिष्यवृत्ती मिळण्याची शक्यता नाही. अंदाज फक्त तुम्ही दिलेल्या शिक्षण शुल्क आणि परीक्षा शुल्कावर आधारित असतो; तो मंजूर रक्कम नाही.",
+    official: "VIDVATTA हे स्वतंत्र मार्गदर्शन व्यासपीठ आहे. सध्याचे नियम तपासा आणि अर्ज फक्त महाराष्ट्राच्या अधिकृत MahaDBT पोर्टलवर सादर करा.",
+    status: "प्रत्येक योजनेची स्थिती सहा स्थानिक टप्प्यांमधून बदला. वैयक्तिक नोंद किंवा अंतिम तारीख जोडा; ती या उपकरणावर जतन होईल. VIDVATTA अर्जाची स्थिती मिळवत नाही किंवा सूचना पाठवत नाही."
+  }
+};
+
 guideForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const question = guideForm.elements.namedItem("question").value;
-  if (question === "matches") {
-    setGuideAnswer(
-      localProfile?.eligibility
-        ? "Your local screener compares two verified rule sets only. It never predicts an award or ranks the other directory entries."
-        : "Create a local profile, then complete every relevant eligibility question. Unknown answers stay unverified and do not receive a percentage.",
-      "Open Eligibility Intelligence →",
-      "#eligibility"
-    );
-  } else if (question === "documents") {
-    setGuideAnswer("The checklist is based on the two verified MahaDBT scheme detail pages. It stores check marks only and never receives files or document numbers.", "Open Document Assistant →", "#documents");
-  } else if (question === "percentage") {
-    setGuideAnswer("A published benefit percentage describes a fee component in a tentative MahaDBT benefit table. It is not a probability of receiving a scholarship, and it is shown only when the related checks pass.");
-  } else {
-    setGuideAnswer("Submit applications and verify current rules only through Maharashtra's official MahaDBT portal.", "Open MahaDBT ↗", "https://mahadbt2.maharashtra.gov.in/");
-  }
+  const language = guideForm.elements.namedItem("language").value;
+  const linkCopy = {
+    en: {
+      matches: ["Open Eligibility Intelligence →", "#eligibility"],
+      documents: ["Open Document Assistant →", "#documents"],
+      percentage: ["Open the benefit estimate →", "#compare"],
+      official: ["Open official MahaDBT ↗", "https://mahadbt2.maharashtra.gov.in/"],
+      status: ["Open Application Tracker →", "#tracker"]
+    },
+    mr: {
+      matches: ["पात्रता मार्गदर्शन उघडा →", "#eligibility"],
+      documents: ["कागदपत्र सहाय्यक उघडा →", "#documents"],
+      percentage: ["लाभ अंदाज उघडा →", "#compare"],
+      official: ["अधिकृत MahaDBT उघडा ↗", "https://mahadbt2.maharashtra.gov.in/"],
+      status: ["अर्ज ट्रॅकर उघडा →", "#tracker"]
+    }
+  };
+  const [linkText, href] = linkCopy[language][question];
+  setGuideAnswer(guideCopy[language][question], linkText, href);
 });
 
 function updateRoadmap() {
+  function updateRecommendedAction(item) {
+    roadmapNextAction.replaceChildren();
+    if (!item) {
+      roadmapNextAction.textContent = "Your listed journey steps are complete. Keep checking MahaDBT for current scheme rules and deadlines.";
+      return;
+    }
+
+    const heading = item.querySelector("h3").textContent;
+    roadmapNextAction.append(document.createTextNode(`Next recommended action: ${heading}. `));
+    const sourceLink = item.querySelector(".roadmap-action");
+    if (!sourceLink) return;
+    const link = document.createElement("a");
+    link.href = sourceLink.href;
+    link.textContent = sourceLink.textContent;
+    if (sourceLink.target === "_blank") {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+    roadmapNextAction.append(link);
+  }
+
   if (!localProfile) {
     roadmapItems.forEach((item, index) => {
       item.classList.toggle("is-next", index === 0);
@@ -984,6 +1404,7 @@ function updateRoadmap() {
       item.querySelector(".roadmap-marker").textContent = String(index + 1);
       item.querySelector(".roadmap-status").textContent = index === 0 ? "Next up" : "Not started";
     });
+    updateRecommendedAction(roadmapItems[0]);
     return;
   }
 
@@ -1010,21 +1431,28 @@ function updateRoadmap() {
     item.querySelector(".roadmap-marker").textContent = isComplete ? "✓" : String(index + 1);
     item.querySelector(".roadmap-status").textContent = isComplete ? "Complete" : isNext ? "Next up" : "Not started";
   });
+  updateRecommendedAction(nextIndex < 0 ? null : roadmapItems[nextIndex]);
 }
 
-const officialRoadmapLink = document.querySelector('[data-roadmap-step="official"] .roadmap-action');
-officialRoadmapLink.addEventListener("click", () => {
+document.querySelectorAll("[data-open-official-portal]").forEach((officialRoadmapLink) => {
+  officialRoadmapLink.addEventListener("click", () => {
   if (!localProfile) return;
   localProfile.officialPortalOpened = true;
   persistWorkspaceProfile(roadmapError);
   updateRoadmap();
+  });
 });
 
 populateSchemeSelect(document.querySelector("#tracker-scheme"), "Choose a scheme");
 populateSchemeSelect(compareFirst, "Choose a first scheme");
 populateSchemeSelect(compareSecond, "Choose a second scheme");
 guideForm.addEventListener("input", () => {
-  guideAnswer.textContent = "Choose a question and select “Show guidance” to display a sourced next step.";
+  guideAnswer.textContent = guideForm.elements.namedItem("language").value === "mr"
+    ? "प्रश्न निवडा आणि मार्गदर्शन दाखवण्यासाठी बटण निवडा."
+    : "Choose a question and select “Show guidance” to display a sourced next step.";
+  guideForm.querySelector("button[type='submit']").textContent = guideForm.elements.namedItem("language").value === "mr"
+    ? "मार्गदर्शन दाखवा"
+    : "Show guidance";
 });
 eligibilityForm.elements.namedItem("track").addEventListener("change", setConditionalCriteria);
 eligibilityForm.addEventListener("submit", (event) => {

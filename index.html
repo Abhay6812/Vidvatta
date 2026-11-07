@@ -5,19 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f4ef">
     <meta name="description" content="Explore Maharashtra scholarships, review official eligibility criteria, and prepare your MahaDBT application with VIDVATTA.">
-    <title>VIDVATTA · Scholarship guidance for Maharashtra</title>
-    <link rel="icon" type="image/png" href="assets/vidvatta-logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_IN">
+    <meta property="og:site_name" content="VIDVATTA">
+    <meta property="og:title" content="VIDVATTA · Maharashtra Scholarship Guidance">
+    <meta property="og:description" content="Explore Maharashtra scholarship listings, check selected published criteria, and plan your next steps with independent VIDVATTA guidance.">
+    <meta property="og:url" content="https://vidvatta-six.vercel.app/">
+    <meta property="og:image" content="https://vidvatta-six.vercel.app/assets/vidvatta-logo.webp">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="VIDVATTA · Maharashtra Scholarship Guidance">
+    <meta name="twitter:description" content="Independent scholarship guidance for Maharashtra students, with MahaDBT as the primary reference.">
+    <link rel="canonical" href="https://vidvatta-six.vercel.app/">
+    <title>VIDVATTA · Maharashtra Scholarship Guidance</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="image" href="assets/vidvatta-logo.webp" type="image/webp">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="scheme-catalog.js" defer></script>
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css?v=6">
+    <script src="scheme-catalog.js?v=2" defer></script>
+    <script src="eligibility-rules.js?v=3" defer></script>
+    <script src="local-profile-storage.js?v=1" defer></script>
+    <script src="script.js?v=9" defer></script>
   </head>
   <body>
+    <a class="skip-link" href="#top">Skip to main content</a>
     <aside class="app-sidebar" id="app-sidebar" aria-label="Workspace navigation">
       <a class="brand sidebar-brand" href="#top" aria-label="VIDVATTA overview">
-        <img src="assets/vidvatta-logo.png" alt="VIDVATTA — Knowledge. Opportunity. Empowerment." width="768" height="768">
+        <img src="assets/vidvatta-logo.webp" alt="VIDVATTA — Knowledge. Opportunity. Empowerment." width="256" height="256" fetchpriority="high">
       </a>
       <p class="sidebar-label">Workspace</p>
       <nav class="sidebar-navigation" aria-label="Workspace">
@@ -51,12 +66,12 @@
         </span>
         <span>VIDVATTA</span>
       </a>
-      <button class="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="app-sidebar">
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="app-sidebar">
         <span></span><span></span>
       </button>
       <div class="page-context">
-        <p>Your details, your control</p>
-        <h1 id="page-title">Overview</h1>
+        <p>Maharashtra scholarship guidance</p>
+        <p class="page-context-title" id="page-title" aria-live="polite" aria-atomic="true">Overview</p>
       </div>
       <nav class="navigation" id="primary-navigation" aria-label="Main navigation">
         <a href="#how-it-works">How it works</a>
@@ -76,7 +91,7 @@
             <p class="eyebrow-pill"><span></span> Independent scholarship guidance · Maharashtra</p>
             <h1>Your future deserves every opportunity.</h1>
             <p class="hero-description">Find Maharashtra scholarship schemes, understand their eligibility criteria, and prepare your next steps with confidence.</p>
-            <aside class="portal-notice"><span>Important portal update</span><p>For 2026–27 fresh and renewal applications, use the new MahaDBT 2.0 portal.</p><a href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Go to MahaDBT 2.0 ↗</a></aside>
+            <aside class="portal-notice"><span>Official application destination</span><p>Check MahaDBT 2.0 for the latest application window, scheme availability, and requirements.</p><a href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Go to MahaDBT 2.0 ↗</a></aside>
             <div class="hero-actions">
               <a class="button" href="#scholarships">Explore scholarships <span aria-hidden="true">↓</span></a>
               <a class="button button-light" href="#how-it-works">Explore how it works</a>
@@ -122,6 +137,58 @@
         </div>
       </section>
 
+      <section class="journey-overview section-shell" id="how-it-works" aria-labelledby="journey-title">
+        <div class="section-intro">
+          <p class="eyebrow">Maharashtra students · A practical path</p>
+          <h2 id="journey-title">Your Scholarship Journey, Simplified</h2>
+          <p>VIDVATTA connects discovery and preparation to official applications. It is an independent guide that uses MahaDBT as its primary reference; final eligibility checks and applications belong on government portals.</p>
+        </div>
+        <p class="journey-start"><strong>Start with your Student Profile.</strong> Add the education details you choose to share in this browser, then continue through the journey. <a href="#profile">Create or update your local profile →</a></p>
+        <ol class="journey-stages">
+          <li class="journey-stage">
+            <span>01 · DISCOVER</span>
+            <h3>Find relevant schemes</h3>
+            <p>Search Maharashtra school and college listings by keyword, category, and study level.</p>
+            <a href="#scholarships">Open Scholarship Discovery →</a>
+          </li>
+          <li class="journey-stage">
+            <span>02 · UNDERSTAND</span>
+            <h3>Review fit and options</h3>
+            <p>Screen two published rule sets, see what matches or needs checking, and compare listings.</p>
+            <a href="#eligibility">Check eligibility →</a>
+            <a href="#compare">Compare schemes →</a>
+          </li>
+          <li class="journey-stage">
+            <span>03 · PREPARE</span>
+            <h3>Organize your checklist</h3>
+            <p>Mark document-preparation steps locally. VIDVATTA never accepts files or document numbers.</p>
+            <a href="#documents">Open Document Assistant →</a>
+          </li>
+          <li class="journey-stage">
+            <span>04 · APPLY</span>
+            <h3>Use the official portal</h3>
+            <p>Confirm current rules and submit through MahaDBT; this site does not submit applications.</p>
+            <a href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Open official MahaDBT ↗</a>
+          </li>
+          <li class="journey-stage">
+            <span>05 · TRACK</span>
+            <h3>Keep your own follow-ups</h3>
+            <p>Record a manual status and personal reminders in this browser; no live status is fetched.</p>
+            <a href="#tracker">Open Application Tracker →</a>
+            <a href="#calendar">Open Calendar Reminders →</a>
+          </li>
+        </ol>
+        <div class="problem-mapping" aria-labelledby="problem-mapping-title">
+          <h3 id="problem-mapping-title">How VIDVATTA addresses the original problem</h3>
+          <div class="problem-mapping-grid">
+            <article><h4>Discovering assistance</h4><p>Search, category filters, study-level filters, and official directory links.</p><a href="#scholarships">Explore schemes →</a></article>
+            <article><h4>Understanding options</h4><p>Transparent screening for supported rules and a side-by-side listing comparison.</p><a href="#eligibility">Review eligibility →</a></article>
+            <article><h4>Navigating applications</h4><p>Scheme checklists, roadmap steps, and a direct route to MahaDBT.</p><a href="#documents">Prepare next steps →</a></article>
+            <article><h4>Keeping information organized</h4><p>Local tracker entries and personal reminders that remain on this device.</p><a href="#tracker">Manage your plan →</a></article>
+          </div>
+        </div>
+      </section>
+
       <section class="scholarships-section section-shell" id="scholarships">
         <div class="section-intro scholarships-intro">
           <p class="eyebrow">Maharashtra · Official scheme information</p>
@@ -130,7 +197,7 @@
         </div>
         <div class="catalog-source">
           <span class="source-icon" aria-hidden="true">i</span>
-          <p><strong>Current application portal:</strong> MahaDBT says 2026–27 fresh and renewal applications are accepted on MahaDBT 2.0. Scheme availability, deadlines, and criteria can change.</p>
+          <p><strong>Official application portal:</strong> Use MahaDBT 2.0 to confirm the current application window, scheme availability, and criteria.</p>
           <a href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Official portal <span aria-hidden="true">↗</span></a>
         </div>
         <form class="scheme-filters" id="scheme-filters">
@@ -153,12 +220,6 @@
               <option value="obc">OBC</option>
               <option value="vjnt-sbc">VJNT / SBC</option>
               <option value="merit">Merit-based</option>
-            </select>
-          </label>
-          <label>Published parent-income limit
-            <select id="income-cap">
-              <option value="all">All schemes</option>
-              <option value="800000">₹8 lakh or less</option>
             </select>
           </label>
           <button class="button filter-button" type="submit">Show schemes <span aria-hidden="true">→</span></button>
@@ -275,7 +336,7 @@
           </article>
         </div>
         <p class="no-schemes" id="no-schemes" hidden>No featured schemes match those filters. Try broadening your search or browse the complete official directories.</p>
-        <p class="catalog-disclaimer">VIDVATTA is an independent guide, not a government service. This selected list is based on the official MahaDBT 2.0 school and college directories (checked 7 November 2026); it is not the complete catalogue or an eligibility decision. Always verify the latest rules, deadlines, and documents on MahaDBT 2.0.</p>
+        <p class="catalog-disclaimer">VIDVATTA is an independent guide, not a government service. This selected list is based on the official MahaDBT 2.0 school and college directories; it is not the complete catalogue or an eligibility decision. Always verify the latest rules, deadlines, and documents on MahaDBT 2.0.</p>
         <section class="eligibility-section" id="eligibility" aria-labelledby="eligibility-title">
           <div class="eligibility-heading">
             <div class="section-intro">
@@ -324,8 +385,15 @@
                     <option value="prefer-not">Prefer not to say</option>
                   </select>
                 </label>
-                <label>Combined annual family / guardian income (₹)
-                  <input name="familyIncome" type="number" min="0" max="1000000000" step="1" inputmode="numeric" placeholder="For example, 300000" required>
+                <label>Combined annual family / guardian income range
+                  <select name="familyIncome" required>
+                    <option value="">Choose a range</option>
+                    <option value="0-250000">₹2.5 lakh or less</option>
+                    <option value="250001-800000">Above ₹2.5 lakh and up to ₹8 lakh</option>
+                    <option value="800001+">Above ₹8 lakh</option>
+                    <option value="unknown">Prefer not to say / not sure</option>
+                  </select>
+                  <small class="field-help">A range is enough; do not enter an exact amount.</small>
                 </label>
                 <label>Are you domiciled in Maharashtra?
                   <select name="maharashtraDomicile" required>
@@ -468,17 +536,17 @@
             </div>
           </form>
           <div class="eligibility-results" id="eligibility-results" aria-live="polite"></div>
-          <p class="catalog-disclaimer">This is a screening guide, not an eligibility decision or live connection to MahaDBT. We compare only rules and rates represented here from the official scheme details, checked 7 November 2026. Other schemes remain unverified by this screener. Confirm all criteria, documents, fee calculations, and current availability with <a href="https://mahadbt2.maharashtra.gov.in/college-student" target="_blank" rel="noopener noreferrer">MahaDBT college schemes</a> before applying.</p>
+          <p class="catalog-disclaimer">This is a screening guide, not an eligibility decision or live connection to MahaDBT. We compare only rules and rates represented here from selected official scheme details. Other schemes remain unverified by this screener. Confirm all criteria, documents, fee calculations, and current availability with <a href="https://mahadbt2.maharashtra.gov.in/college-student" target="_blank" rel="noopener noreferrer">MahaDBT college schemes</a> before applying.</p>
         </section>
         <section class="all-schemes-directory" id="all-student-schemes" aria-labelledby="all-schemes-title">
           <div class="directory-heading">
             <div class="section-intro">
               <p class="eyebrow">Complete student directory · category-wise</p>
-              <h2 id="all-schemes-title">Browse all 74 MahaDBT student schemes.</h2>
-              <p>These are the scheme names listed in the official school and college student directories, grouped by the category named in each scheme or department. A category tag is a way to browse, not a final eligibility decision.</p>
+              <h2 id="all-schemes-title">Browse 72 selected MahaDBT student listings.</h2>
+              <p>This selected directory removes one duplicate title and one unnamed placeholder from the school and college listings. Entries are grouped by their listed category or department; a category tag is a way to browse, not a final eligibility decision.</p>
             </div>
             <div class="directory-counts" aria-label="Official student directory totals">
-              <span><strong>60</strong> College schemes</span>
+              <span><strong>58</strong> College listings</span>
               <span><strong>14</strong> School schemes</span>
             </div>
           </div>
@@ -508,7 +576,7 @@
         <div class="section-intro">
           <p class="eyebrow">Workspace · Documents</p>
           <h2 id="documents-title">Document assistant.</h2>
-          <p>Prepare a checklist from the official documents listed for the two schemes this screener can evaluate. This is a checklist only — never upload files or enter document numbers here.</p>
+          <p>Prepare a checklist from the official documents listed for the two schemes this screener can evaluate. Readiness reflects your own check marks only; no files, document numbers, or personal document metadata are collected.</p>
         </div>
         <div class="workspace-gate" id="documents-gate">
           <p>Create a local profile first to save checklist progress on this device.</p>
@@ -523,8 +591,11 @@
           </label>
           <p class="workspace-note" id="documents-note"></p>
           <p class="workspace-error" id="documents-error" role="alert" hidden></p>
+          <label class="readiness-label" for="document-readiness">Document readiness</label>
+          <progress id="document-readiness" max="100" value="0">0%</progress>
           <div class="document-checklist" id="document-checklist"></div>
           <p class="workspace-progress" id="document-progress" aria-live="polite"></p>
+          <ul class="missing-documents" id="missing-documents" aria-live="polite"></ul>
         </div>
       </section>
 
@@ -545,20 +616,25 @@
             </label>
             <label>My status
               <select name="status" required>
-                <option value="">Choose a status</option>
-                <option>Preparing documents</option>
-                <option>Ready to apply</option>
-                <option>Submitted</option>
-                <option>Waiting for institute</option>
-                <option>Follow up needed</option>
-              </select>
+                <option value="">Choose a stage</option>
+                  <option>Discovered</option>
+                  <option>Eligibility Checked</option>
+                  <option>Documents in Preparation</option>
+                  <option>Ready to Apply</option>
+                  <option>Submitted</option>
+                  <option>Completed / Result Awaited</option>
+                </select>
             </label>
-            <label>Personal reminder date (optional)
-              <input name="reminderDate" type="date">
+            <label>Deadline / reminder date (optional)
+                <input name="reminderDate" type="date">
+            </label>
+            <label>Notes (optional)
+                <input name="notes" type="text" maxlength="300" placeholder="A short personal follow-up note">
             </label>
             <button class="button" type="submit">Add to my tracker</button>
           </form>
           <p class="workspace-error" id="tracker-error" role="alert" hidden></p>
+          <div class="tracker-statistics" id="tracker-statistics" aria-live="polite"></div>
           <div class="workspace-items" id="tracker-items" aria-live="polite"></div>
         </div>
       </section>
@@ -604,6 +680,27 @@
           <button class="button" type="submit">Compare schemes</button>
         </form>
         <div class="compare-results" id="compare-results" aria-live="polite"></div>
+        <div class="benefit-calculator">
+          <h3>Estimate a published fee component</h3>
+          <p>This calculator only applies a represented MahaDBT tuition/examination fee rate to amounts you enter. It is an estimate, not an award or approved amount; other support is not calculated.</p>
+          <form class="workspace-form" id="benefit-calculator">
+            <label>Supported rule set
+              <select name="scheme" required>
+                <option value="sebc-technical">SEBC technical education</option>
+                <option value="st-training">ST vocational training</option>
+              </select>
+            </label>
+            <label>Tuition fee amount (₹)
+              <input name="tuitionFee" type="number" min="0" max="1000000000" step="0.01" inputmode="decimal" required>
+            </label>
+            <label>Examination fee amount (₹)
+              <input name="examFee" type="number" min="0" max="1000000000" step="0.01" inputmode="decimal" required>
+            </label>
+            <button class="button" type="submit">Calculate estimate</button>
+          </form>
+          <p class="workspace-error" id="benefit-error" role="alert" hidden></p>
+          <div class="workspace-progress" id="benefit-result" aria-live="polite">Complete the matching eligibility questions first. Estimates are available only for a supported, fully matched rule set.</div>
+        </div>
       </section>
 
       <section class="workspace-section section-shell" id="assistant" aria-labelledby="assistant-title">
@@ -613,12 +710,19 @@
           <p>This prototype provides curated, rule-based guidance in your browser. It does not send questions or personal details to an AI service.</p>
         </div>
         <form class="workspace-form guide-form" id="guide-form">
+          <label>Guidance language
+            <select name="language">
+              <option value="en">English</option>
+              <option value="mr">मराठी</option>
+            </select>
+          </label>
           <label>What would you like help with?
             <select name="question">
               <option value="matches">How do I check whether a scheme may fit?</option>
               <option value="documents">What should I prepare?</option>
               <option value="percentage">What does the benefit percentage mean?</option>
               <option value="official">Where do I apply?</option>
+              <option value="status">How do I track my application?</option>
             </select>
           </label>
           <button class="button" type="submit">Show guidance</button>
@@ -677,8 +781,15 @@
             <label>Previous academic percentage (optional)
               <input name="previousPercentage" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="0–100">
             </label>
-            <label>Annual family / guardian income (₹)
-              <input name="familyIncome" type="number" min="0" max="1000000000" step="1" inputmode="numeric" placeholder="Combined annual amount" required>
+            <label>Combined annual family / guardian income range
+              <select name="familyIncome" required>
+                <option value="">Choose a range</option>
+                <option value="0-250000">₹2.5 lakh or less</option>
+                <option value="250001-800000">Above ₹2.5 lakh and up to ₹8 lakh</option>
+                <option value="800001+">Above ₹8 lakh</option>
+                <option value="unknown">Prefer not to say / not sure</option>
+              </select>
+              <small class="field-help">A range is enough; do not enter an exact amount.</small>
             </label>
           </div>
           <fieldset class="profile-categories">
@@ -716,21 +827,6 @@
         </div>
       </section>
 
-      <section class="journey section-shell" id="how-it-works">
-        <div class="section-intro journey-intro">
-          <p class="eyebrow">A clearer way forward</p>
-          <h2>From “where do I start?” to a plan.</h2>
-          <p>VIDVATTA brings scholarship information and preparation into one calm, guided workspace — without replacing official government portals.</p>
-        </div>
-        <div class="steps">
-          <article class="step"><span class="step-number">01</span><h3>Tell us about yourself</h3><p>Build a profile in minutes.</p></article>
-          <article class="step"><span class="step-number">02</span><h3>Discover &amp; match</h3><p>See relevant opportunities.</p></article>
-          <article class="step"><span class="step-number">03</span><h3>Check eligibility</h3><p>Get a transparent explanation.</p></article>
-          <article class="step"><span class="step-number">04</span><h3>Prepare &amp; apply</h3><p>Know your documents and next move.</p></article>
-          <article class="step"><span class="step-number">05</span><h3>Track &amp; achieve</h3><p>Keep momentum until submission.</p></article>
-        </div>
-      </section>
-
       <section class="features-section" id="features">
         <div class="section-shell">
           <div class="section-intro">
@@ -763,16 +859,17 @@
         <div class="roadmap-banner">
           <p class="eyebrow">Personalized journey</p>
           <h2 id="roadmap-title">Keep moving, one step at a time.</h2>
+          <p id="roadmap-next-action" aria-live="polite">Next recommended action: create a local profile.</p>
           <p>Your roadmap connects discovery to action without replacing official scholarship systems.</p>
         </div>
         <ol class="roadmap-timeline" id="roadmap-timeline">
-          <li class="roadmap-item" data-roadmap-step="profile"><span class="roadmap-marker">1</span><div><h3>Complete Profile</h3><p>Add the details that make guidance relevant.</p><span class="roadmap-status">Not started</span></div></li>
-          <li class="roadmap-item" data-roadmap-step="discover"><span class="roadmap-marker">2</span><div><h3>Discover Scholarships</h3><p>Explore opportunities in the official student directories.</p><span class="roadmap-status">Not started</span></div></li>
+          <li class="roadmap-item" data-roadmap-step="profile"><span class="roadmap-marker">1</span><div><h3>Complete Profile</h3><p>Add the details that make guidance relevant.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" href="#profile">Create or update profile →</a></div></li>
+          <li class="roadmap-item" data-roadmap-step="discover"><span class="roadmap-marker">2</span><div><h3>Discover Scholarships</h3><p>Explore opportunities in the official student directories.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" href="#scholarships">Browse scholarship listings →</a></div></li>
           <li class="roadmap-item" data-roadmap-step="eligibility"><span class="roadmap-marker">3</span><div><h3>Check Eligibility</h3><p>Understand why a scheme may fit and what still needs checking.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" href="#eligibility">Start eligibility check →</a></div></li>
-          <li class="roadmap-item" data-roadmap-step="documents"><span class="roadmap-marker">4</span><div><h3>Prepare Documents</h3><p>Gather documents and mark your preparation progress.</p><span class="roadmap-status">Not started</span></div></li>
-          <li class="roadmap-item" data-roadmap-step="official"><span class="roadmap-marker">5</span><div><h3>Visit Official Portal</h3><p>Confirm the latest scheme details on MahaDBT.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Visit official portal ↗</a></div></li>
-          <li class="roadmap-item" data-roadmap-step="apply"><span class="roadmap-marker">6</span><div><h3>Apply for Scholarships</h3><p>Submit your application through the official process — never here.</p><span class="roadmap-status">Not started</span></div></li>
-          <li class="roadmap-item" data-roadmap-step="track"><span class="roadmap-marker">7</span><div><h3>Track Application</h3><p>Keep your own manual status and deadlines up to date.</p><span class="roadmap-status">Not started</span></div></li>
+          <li class="roadmap-item" data-roadmap-step="documents"><span class="roadmap-marker">4</span><div><h3>Prepare Documents</h3><p>Gather documents and mark your preparation progress.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" href="#documents">Open document checklist →</a></div></li>
+          <li class="roadmap-item" data-roadmap-step="official"><span class="roadmap-marker">5</span><div><h3>Visit Official Portal</h3><p>Confirm the latest scheme details on MahaDBT.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" data-open-official-portal href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Visit official portal ↗</a></div></li>
+          <li class="roadmap-item" data-roadmap-step="apply"><span class="roadmap-marker">6</span><div><h3>Apply for Scholarships</h3><p>Submit your application through the official process — never here.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" data-open-official-portal href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Apply on MahaDBT ↗</a></div></li>
+          <li class="roadmap-item" data-roadmap-step="track"><span class="roadmap-marker">7</span><div><h3>Track Application</h3><p>Keep your own manual status and deadlines up to date.</p><span class="roadmap-status">Not started</span><a class="roadmap-action" href="#tracker">Open Application Tracker →</a></div></li>
         </ol>
         <p class="workspace-error" id="roadmap-error" role="alert" hidden></p>
       </section>
@@ -800,20 +897,20 @@
         </div>
         <div class="faq-list">
           <article class="faq-item is-open">
-            <h3><button type="button" aria-expanded="true">Is VIDVATTA an official MahaDBT service?<span class="faq-chevron"></span></button></h3>
-            <div class="faq-answer"><p>No. VIDVATTA is an independent guide. Apply and confirm your eligibility through the official Maharashtra MahaDBT portal.</p></div>
+            <h3><button type="button" aria-expanded="true" aria-controls="faq-answer-1">Is VIDVATTA an official MahaDBT service?<span class="faq-chevron"></span></button></h3>
+            <div class="faq-answer" id="faq-answer-1"><p>No. VIDVATTA is an independent guide. Apply and confirm your eligibility through the official Maharashtra MahaDBT portal.</p></div>
           </article>
           <article class="faq-item">
-            <h3><button type="button" aria-expanded="false">Are the scholarship details live and verified?<span class="faq-chevron"></span></button></h3>
-            <div class="faq-answer"><p>Scheme information may change. VIDVATTA highlights selected details from official MahaDBT listings; check the current portal for complete criteria, application dates, and documents.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="faq-answer-2">Are the scholarship details live and verified?<span class="faq-chevron"></span></button></h3>
+            <div class="faq-answer" id="faq-answer-2"><p>Scheme information may change. VIDVATTA highlights selected details from official MahaDBT listings; check the current portal for complete criteria, application dates, and documents.</p></div>
           </article>
           <article class="faq-item">
-            <h3><button type="button" aria-expanded="false">How does the local profile work?<span class="faq-chevron"></span></button></h3>
-            <div class="faq-answer"><p>The optional demo profile has no password and is stored in this browser only; it is not a secure online account and does not sync. Your answers are not sent to VIDVATTA. Do not enter Aadhaar numbers, OTPs, bank details, or upload documents. You can delete the saved profile from the account dialog.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="faq-answer-3">How does the local profile work?<span class="faq-chevron"></span></button></h3>
+            <div class="faq-answer" id="faq-answer-3"><p>The optional demo profile has no password and is stored in this browser only; it is not a secure online account and does not sync. Your answers are not sent to VIDVATTA. Do not enter Aadhaar numbers, OTPs, bank details, or upload documents. You can delete the saved profile from the account dialog.</p></div>
           </article>
           <article class="faq-item">
-            <h3><button type="button" aria-expanded="false">Can I use VIDVATTA on my phone?<span class="faq-chevron"></span></button></h3>
-            <div class="faq-answer"><p>Yes. The guidance is designed to work on phones, tablets, and desktop screens.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="faq-answer-4">Can I use VIDVATTA on my phone?<span class="faq-chevron"></span></button></h3>
+            <div class="faq-answer" id="faq-answer-4"><p>Yes. The guidance is designed to work on phones, tablets, and desktop screens.</p></div>
           </article>
         </div>
       </section>
@@ -842,13 +939,13 @@
       <div class="footer-inner section-shell">
         <div>
           <a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m13.4 3.2 1.1 4.2 4.1 1.2-4.1 1.1-1.1 4.2-1.2-4.2-4.1-1.1 4.1-1.2 1.2-4.2Z"/><path d="m6.2 13.3.8 2.7 2.7.8-.8 2.7-.8-2.7-2.7-.8 2.7-.8.8-2.7Z"/></svg></span><span>VIDVATTA</span></a>
-          <p>Your future deserves every opportunity.</p>
+          <p>Knowledge. Opportunity. Empowerment.</p>
         </div>
         <div class="footer-links">
           <a href="https://mahadbt2.maharashtra.gov.in/" target="_blank" rel="noopener noreferrer">Official MahaDBT 2.0 portal <span aria-hidden="true">↗</span></a>
           <a href="https://mahadbt2.maharashtra.gov.in/college-student" target="_blank" rel="noopener noreferrer">College scheme directory <span aria-hidden="true">↗</span></a>
           <a href="https://mahadbt2.maharashtra.gov.in/school-student" target="_blank" rel="noopener noreferrer">School scheme directory <span aria-hidden="true">↗</span></a>
-          <span>© 2026 VIDVATTA</span>
+          <span>© VIDVATTA</span>
         </div>
       </div>
     </footer>
