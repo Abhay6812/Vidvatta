@@ -1,17 +1,26 @@
 const {test, expect} = require("@playwright/test");
-const pageErrors = new WeakMap();
+const runtimeErrors = new WeakMap();
 
 test.beforeEach(async ({page}) => {
-  const errors = [];
-  pageErrors.set(page, errors);
-  page.on("pageerror", (error) => errors.push(error.message));
+  const errors = {console: [], page: [], requests: [], responses: []};
+  runtimeErrors.set(page, errors);
+  page.on("pageerror", (error) => errors.page.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.console.push(message.text());
+  });
+  page.on("requestfailed", (request) => {
+    errors.requests.push(`${request.url()}: ${request.failure()?.errorText}`);
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) errors.responses.push(`${response.status()} ${response.url()}`);
+  });
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });
 
 test.afterEach(async ({page}) => {
-  expect(pageErrors.get(page)).toEqual([]);
+  expect(runtimeErrors.get(page)).toEqual({console: [], page: [], requests: [], responses: []});
 });
 
 async function createLocalProfile(page) {
@@ -85,6 +94,18 @@ test("loads the journey, landmarks, assets, and valid internal links", async ({p
       .map((image) => image.src)
   }));
   expect(invalidReferences).toEqual({anchors: [], controls: [], unsafeExternalLinks: [], imageFailures: []});
+});
+
+test("opens every sidebar navigation destination", async ({page}) => {
+  const links = await page.locator("#app-sidebar .sidebar-navigation a[href^='#']").all();
+  expect(links.length).toBeGreaterThan(0);
+
+  for (const link of links) {
+    const href = await link.getAttribute("href");
+    await link.click();
+    expect(new URL(page.url()).hash).toBe(href);
+    await expect(page.locator(href)).toHaveCount(1);
+  }
 });
 
 test("searches the directory and combines category and study-level filters", async ({page}) => {

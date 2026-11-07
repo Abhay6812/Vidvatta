@@ -145,11 +145,20 @@ npm test
 
 The unit tests cover eligibility outcomes, unknown income, rule matching,
 supported fee estimates, and local storage error cases. Playwright covers
-initial loading, internal links, search and filters, eligibility validation,
-checklist persistence/readiness, tracker CRUD and stage changes, reminders,
-comparison, fee estimates, Marathi guidance, keyboard-operable mobile
-navigation, browser page errors, and horizontal overflow at 360, 390, 768,
-1024, and 1440 CSS pixels with both a fresh and populated dashboard.
+initial loading, interactive sidebar navigation, search and filters,
+eligibility validation, checklist persistence/readiness, tracker CRUD and
+stage changes, reminders, comparison, fee estimates, Marathi guidance,
+keyboard-operable mobile navigation, console and page errors, failed requests,
+HTTP errors, and horizontal overflow at 360, 390, 768, 1024, and 1440 CSS
+pixels with both a fresh and populated dashboard.
+
+To run the browser tests against a deployed preview instead of localhost:
+
+```powershell
+$env:PLAYWRIGHT_TEST_BASE_URL = "https://your-preview-url.vercel.app"
+npm run test:e2e
+Remove-Item Env:\PLAYWRIGHT_TEST_BASE_URL
+```
 
 ## Deploy to Vercel
 
